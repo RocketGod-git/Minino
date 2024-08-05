@@ -32,7 +32,6 @@ typedef struct {
   int max_items;
 } wifi_setting_t;
 
-static wifi_setting_state_t wifi_setting_state = WIFI_SETTING_IDLE;
 static wifi_setting_t wifi_config_state;
 
 static void config_module_app_selector();

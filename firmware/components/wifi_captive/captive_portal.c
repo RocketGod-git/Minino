@@ -213,18 +213,9 @@ void captive_portal_set_config(wifi_config_t* config) {
   wifi_config = *config;
   ESP_LOGI(TAG, "ESP_WIFI_MODE_AP %s", (char*) wifi_config.ap.ssid);
 }
-
-static void captive_portal_dns_server_stop() {
-  ESP_LOGI(TAG, "DNS Server stopped");
-}
-
 void captive_portal_stop() {
-  // stop_dns_server(captive_portal_dns_server_stop);
-  ESP_LOGI(TAG, "Stopping captive portal");
   httpd_stop(NULL);
-  ESP_LOGI(TAG, "Stopping captive portal");
   esp_wifi_stop();
-  ESP_LOGI(TAG, "Stopping captive portal");
   esp_wifi_deinit();
 }
 

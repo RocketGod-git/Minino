@@ -8,8 +8,6 @@ dependencies:
     version: ">=4.1.0"
   ieee802154:
     path: ../components/ieee802154
-  openthread:
-    path: ../components/openthread
   OTA:
     path: ../components/OTA
   espressif/iperf:

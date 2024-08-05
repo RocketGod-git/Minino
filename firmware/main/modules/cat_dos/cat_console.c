@@ -29,9 +29,6 @@
 static const char* TAG = "cat_console";
 #define PROMPT_STR "minino"
 
-static bool show_dos = false;
-static bool running = false;
-
 static void initialize_nvs(void) {
   esp_err_t err = nvs_flash_init();
   if (err == ESP_ERR_NVS_NO_FREE_PAGES ||

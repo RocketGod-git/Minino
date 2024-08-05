@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "apps/wifi/deauth/include/deauth_module.h"
 #include "cat_console.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -7,12 +6,8 @@
 #include "keyboard_module.h"
 #include "leds.h"
 #include "menu_screens_modules.h"
-#include "open_thread.h"
 #include "preferences.h"
 #include "sd_card.h"
-#include "wardriving_module.h"
-#include "web_file_browser.h"
-#include "wifi_app.h"
 
 #define BUZZER_PIN GPIO_NUM_2
 

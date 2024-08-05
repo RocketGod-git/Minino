@@ -13,7 +13,6 @@ void on_udp_recieve(void* aContext,
                     otMessage* aMessage,
                     const otMessageInfo* aMessageInfo) {
   printf("MSG\n");
-  otError error = OT_ERROR_NONE;
 
   int payload_size =
       (otMessageGetLength(aMessage) - otMessageGetOffset(aMessage));

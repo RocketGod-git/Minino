@@ -56,28 +56,14 @@ static int cmd_catdos_web_set_config(int argc, char** argv) {
   assert(cmd_catdos_web_args.host->count == 1);
   assert(cmd_catdos_web_args.port->count == 1);
   assert(cmd_catdos_web_args.endpoint->count == 1);
-  const char* host = cmd_catdos_web_args.host->sval[0];
-  const char* port = cmd_catdos_web_args.port->sval[0];
-  const char* endpoint = cmd_catdos_web_args.endpoint->sval[0];
+  char* host = cmd_catdos_web_args.host->sval[0];
+  char* port = cmd_catdos_web_args.port->sval[0];
+  char* endpoint = cmd_catdos_web_args.endpoint->sval[0];
 
   catdos_module_set_target(host, port, endpoint);
   return 0;
 }
 
-// static void cmd_catdos_register_wifi_connect(void) {
-//   connect_args.ssid =
-//       arg_str1(NULL, NULL, "<ssid>", "SSID of AP to connect.");
-//   connect_args.password =
-//       arg_str1(NULL, NULL, "<pass>", "Password of AP to connect.");
-//   connect_args.end = arg_end(2);
-
-//   const esp_console_cmd_t cmd = {.command = "wifi_connect",
-//                                  .help = "Connect to an AP",
-//                                  .hint = NULL,
-//                                  .func = &cmd_catdos_wifi_set_config,
-//                                  .argtable = &connect_args};
-//   ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
-// }
 
 static void cmd_catdos_register_catdos_web(void) {
   cmd_catdos_web_args.host =

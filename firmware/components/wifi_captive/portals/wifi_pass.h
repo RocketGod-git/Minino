@@ -1,4 +1,4 @@
-const char WIFI_PASS_PORTAL[] = R"=====(
+char WIFI_PASS_PORTAL[] = R"=====(
 <html>
 <head>
       <title>Enter the password for </title>

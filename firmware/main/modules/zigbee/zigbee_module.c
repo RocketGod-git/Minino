@@ -16,7 +16,6 @@ app_screen_state_information_t app_screen_state_information = {
 };
 static int packet_count = 0;
 int current_channel = IEEE_SNIFFER_CHANNEL_DEFAULT;
-static TaskHandle_t zigbee_task_display_records = NULL;
 static TaskHandle_t zigbee_task_display_animation = NULL;
 static TaskHandle_t zigbee_task_sniffer = NULL;
 
@@ -31,8 +30,10 @@ static void zigbee_module_display_records_cb(uint8_t* packet,
   }
   packet_count++;
   zigbee_screens_display_scanning_text(packet_count);
-  uart_sender_send_packet(UART_SENDER_PACKET_TYPE_ZIGBEE, packet,
+  #if CONFIG_WIRESHARK_CONNECTION == CONFIG_WIRESHARK_UART
+      uart_sender_send_packet(UART_SENDER_PACKET_TYPE_ZIGBEE, packet,
                           packet_length);
+    #endif
 }
 
 void zigbee_module_begin(int app_selected) {

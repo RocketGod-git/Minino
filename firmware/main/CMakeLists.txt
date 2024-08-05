@@ -30,7 +30,8 @@ set(modules "modules/led_events/led_events.c"
             "apps/wifi/deauth/deauth_module.c"
             "apps/wifi/deauth/deauth_screens.c"
             "modules/settings/wifi/wifi_settings.c"
-            "modules/settings/display/display_settings.c")
+            "modules/settings/display/display_settings.c"
+            )
 
 set(drivers "drivers/oled_driver/oled_driver.c"
             "drivers/oled_driver/oled_driver_i2c.c"

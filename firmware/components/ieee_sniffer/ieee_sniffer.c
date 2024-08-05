@@ -114,7 +114,10 @@ static void debug_handler_task(void* pvParameters) {
     if (packet_callback) {
       packet_callback(&packet[1], packet[0]);
     }
-    // debug_print_packet(&packet[1], packet[0]);
+
+    #if CONFIG_WIRESHARK_CONNECTION == CONFIG_TERMINAL_LOG
+      debug_print_packet(&packet[1], packet[0]);
+    #endif
   }
   ESP_LOGE("debug_handler_task", "Terminated");
   vTaskDelete(NULL);
@@ -247,7 +250,7 @@ static void debug_print_packet(uint8_t* packet, uint8_t packet_length) {
 
       printf("Data length: %u\n", data_length);
       printf("Data: ==================================================\n");
-      esp_log_buffer_hex(TAG_IEEE_SNIFFER, data, data_length);
+      ESP_LOG_BUFFER_HEX(TAG_IEEE_SNIFFER, data, data_length);
 
       uint16_t checksum = *((uint16_t*) &packet[position]);
 
@@ -265,6 +268,6 @@ static void debug_print_packet(uint8_t* packet, uint8_t packet_length) {
       break;
     }
   }
-  esp_log_buffer_hex(TAG_IEEE_SNIFFER, packet, packet_length);
+  ESP_LOG_BUFFER_HEX(TAG_IEEE_SNIFFER, packet, packet_length);
   printf("-----------------------\n");
 }

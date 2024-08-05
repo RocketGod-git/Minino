@@ -208,9 +208,13 @@ static void debug_handler_task() {
     pcap_capture(packet.mPsdu, packet.mLength,
                  packet.mInfo.mRxInfo.mTimestamp / 1000000u,
                  packet.mInfo.mRxInfo.mTimestamp % 1000000u);
-    // thread_packet_debug(&packet);
-    uart_sender_send_packet(UART_SENDER_PACKET_TYPE_THREAD, packet.mPsdu,
-                            packet.mLength);
+
+    #if CONFIG_WIRESHARK_CONNECTION == CONFIG_WIRESHARK_UART
+      uart_sender_send_packet(UART_SENDER_PACKET_TYPE_THREAD, packet.mPsdu,packet.mLength);
+    #else
+      thread_packet_debug(&packet);
+    #endif
+    
   }
   ESP_LOGE("debug_handler_task", "Terminated");
   vTaskDelete(NULL);

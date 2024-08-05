@@ -1,5 +1,5 @@
 // 'FACE', 8x8px
-const unsigned char minino_face[] = {0x42, 0xe7, 0xff, 0xff,
+static const unsigned char minino_face[] = {0x42, 0xe7, 0xff, 0xff,
                                      0x99, 0x99, 0x7e, 0x3c};
 
 typedef struct {
@@ -85,8 +85,6 @@ static const unsigned char epd_bitmap_electroniccats[] = {
     0x7f, 0xff, 0xff, 0xfe, 0x7e, 0x7f, 0xfe, 0x7e, 0x78, 0x3f, 0xfc, 0x1e,
     0x30, 0x0f, 0xf0, 0x0c, 0x30, 0x03, 0xc0, 0x0c};
 
-unsigned char* epd_startup_logo[] = {epd_bitmap_minino_text_logo,
-                                     epd_bitmap_face_logo};
 
 epd_bitmap_t minino_face_bitmap = {
     .bitmap = minino_face,

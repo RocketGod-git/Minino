@@ -562,3 +562,21 @@ menu "Frequency Configuration"
         default 13 if EXAMPLE_MIN_CPU_FREQ_13M
         default 32 if EXAMPLE_MIN_CPU_FREQ_32M
 endmenu
+
+
+menu "Terminal Wireshark Connection"
+	choice WIRESHARK_CONNECTION
+		prompt "Wireshark connection"
+		default WIRESHARK_UART
+		help
+			Select the log connection.
+		config WIRESHARK_UART
+			bool "WIRESHARK"
+			help
+				MININO Send the Wireshark frams.
+		config TERMINAL_LOG
+			bool "TERMINAL"
+			help
+				MININO Show in terminal the data.
+	endchoice
+endmenu

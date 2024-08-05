@@ -78,11 +78,7 @@ void wifi_driver_init_apsta(void) {
 
   // Create a defailt WiFi Access Point
   if (!netif_default_created) {
-    err = esp_netif_create_default_wifi_ap();
-    if (err != ESP_OK) {
-      ESP_LOGE(TAG_WIFI_DRIVER, "Error creating default AP: %s",
-               esp_err_to_name(err));
-    }
+    esp_netif_create_default_wifi_ap();
     netif_default_created = true;
     // Create a default WiFi Station
 

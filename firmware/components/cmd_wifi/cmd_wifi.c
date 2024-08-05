@@ -35,7 +35,6 @@ static EventGroupHandle_t wifi_event_group;
 const int CONNECTED_BIT = BIT0;
 static app_callback callback_connection;
 static bool save_credentials = false;
-static bool disconnect_cb = false;
 static int reconnections = 0;
 static int connect(int argc, char** argv);
 static bool wifi_join(const char* ssid, const char* pass, int timeout_ms);
@@ -97,30 +96,31 @@ static int cmd_wifi_connect_index(int argc, char** argv) {
   return 0;
 }
 
-static void cmd_wifi_save_credentials(int argc, char** argv) {
+static int cmd_wifi_save_credentials(int argc, char** argv) {
   save_credentials = true;
   int nerrors = arg_parse(argc, argv, (void**) &join_args);
   if (nerrors != 0) {
     arg_print_errors(stderr, join_args.end, argv[0]);
     ESP_LOGW(__func__, "Error parsing arguments");
-    return;
+    return 1;
   }
   ESP_LOGI(__func__, "Connecting to '%s'", join_args.ssid->sval[0]);
   connect_wifi(join_args.ssid->sval[0], join_args.password->sval[0], NULL);
+  return 0;
 }
 
-static void cmd_wifi_delete_crendentials(int argc, char** argv) {
+static int cmd_wifi_delete_crendentials(int argc, char** argv) {
   int nerrors = arg_parse(argc, argv, (void**) &delete_args);
   if (nerrors != 0) {
     arg_print_errors(stderr, delete_args.end, argv[0]);
     ESP_LOGW(__func__, "Error parsing arguments");
-    return;
+    return 1;
   }
   int index = atoi(delete_args.index->sval[0]);
   int count = preferences_get_int("count_ap", 0);
   if (index >= count) {
     ESP_LOGW(__func__, "Index out of range");
-    return;
+    return 1;
   }
   char wifi_ap[100];
   char wifi_ssid[100];
@@ -129,13 +129,14 @@ static void cmd_wifi_delete_crendentials(int argc, char** argv) {
   esp_err_t err = preferences_get_string(wifi_ap, wifi_ssid, 100);
   if (err != ESP_OK) {
     ESP_LOGW(__func__, "Error getting AP");
-    return;
+    return 1;
   }
   preferences_remove(wifi_ap);
   preferences_remove(wifi_ssid);
   ESP_LOGI(__func__, "Deleted AP %s", wifi_ssid);
 
   preferences_put_int("count_ap", count - 1);
+  return 0;
 }
 
 static void cmd_wifi_handle_credentials(const char* ssid, const char* pass) {

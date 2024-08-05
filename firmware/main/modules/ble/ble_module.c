@@ -18,7 +18,6 @@ static bool is_displaying = false;
 static bool is_modal_displaying = false;
 static tracker_profile_t* scanned_airtags = NULL;
 static TaskHandle_t ble_task_display_records = NULL;
-static TaskHandle_t ble_task_display_animation = NULL;
 
 static void ble_module_app_selector();
 static void ble_module_state_machine(uint8_t button_name, uint8_t button_event);
@@ -48,9 +47,6 @@ static void ble_module_app_selector() {
       trackers_scanner_start();
       break;
     case MENU_BLUETOOTH_SPAM:
-      // xTaskCreate(ble_screens_display_scanning_animation,
-      // "ble_module_scanning",
-      //             4096, NULL, 5, &ble_task_display_animation);
       ble_screens_start_scanning_animation();
       bt_spam_register_cb(ble_screens_display_scanning_text);
       bt_spam_app_main();

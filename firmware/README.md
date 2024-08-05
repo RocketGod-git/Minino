@@ -341,3 +341,7 @@ char** menu_items[] = {
 ```
 
 And that's it! You should be able to navigate to the new menu. Test it and review this guide again in case you missed something.
+
+
+# Generate binary
+`python -m esptool --chip esp32c6 merge_bin -o minino_merge.bin  --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x15000 build/ota_data_initial.bin 0xa0000 build/minino.bin`

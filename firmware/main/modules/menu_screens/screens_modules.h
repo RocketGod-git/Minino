@@ -444,7 +444,7 @@ char* wifi_items[] = {
     NULL,
 };
 
-const char* wifi_analyzer_items[] = {
+char* wifi_analyzer_items[] = {
     "Start",
     "Settings",
     "Help",

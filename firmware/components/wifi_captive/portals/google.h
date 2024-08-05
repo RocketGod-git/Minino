@@ -1,4 +1,4 @@
-const char GOOGLE_PORTAL[] = R"=====(
+char GOOGLE_PORTAL[] = R"=====(
 <html>
 <head>
       <title>Public WiFi Access - Google Login</title>

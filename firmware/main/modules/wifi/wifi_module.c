@@ -52,25 +52,6 @@ char* wifi_state_names[] = {
     "WIFI_STATE_DETAILS",  "WIFI_STATE_ATTACK_SELECTOR",
     "WIFI_STATE_ATTACK",   "WIFI_STATE_ATTACK_CAPTIVE_PORTAL"};
 
-static TaskHandle_t task_display_scanning = NULL;
-static TaskHandle_t task_display_attacking = NULL;
-static wifi_scanner_ap_records_t* ap_records;
-static wifi_module_t current_wifi_state;
-static int current_option = 0;
-static bool show_details = false;
-static bool valid_records = false;
-static int index_targeted = 0;
-
-static void scanning_task(void* pvParameters) {
-  while (!valid_records) {
-    wifi_scanner_module_scan();
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-  }
-  vTaskSuspend(task_display_scanning);
-  wifi_screens_module_display_scanned_networks(
-      ap_records->records, ap_records->count, current_option);
-  vTaskDelete(NULL);
-}
 
 void wifi_module_init_sniffer() {
   oled_screen_clear();
@@ -95,8 +76,6 @@ void wifi_module_init_sniffer() {
         wifi_sniffer_set_destination_internal();
         // TODO: add an option to format the SD card
         break;
-      default:
-        ESP_LOGE(TAG, "SD card mount failed: reason: %s", esp_err_to_name(err));
       case ESP_ERR_NOT_FOUND:
         ESP_LOGW(TAG, "SD card not found");
         oled_screen_display_text_center("SD card ", 0, OLED_DISPLAY_NORMAL);
@@ -107,6 +86,9 @@ void wifi_module_init_sniffer() {
         vTaskDelay(2000 / portTICK_PERIOD_MS);
         oled_screen_clear();
         wifi_sniffer_set_destination_internal();
+        break;
+      default:
+        ESP_LOGE(TAG, "SD card mount failed: reason: %s", esp_err_to_name(err));
         break;
     }
   }
